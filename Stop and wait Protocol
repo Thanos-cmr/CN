@@ -1,52 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h> 
-#include <time.h>    
-
-void sender();
-void receiver(int frame);
+#include <unistd.h>  // for sleep()
+#include <time.h>    // for time()
 
 int main() {
-    srand(time(0)); 
-    sender();
-    return 0;
-}
+    int i = 1, j = 1, noframes, x;
 
-void sender() {
-    int frame = 0; 
-    char ack;
-    int timeout;
-    while (frame < 5) { 
-        printf("Sender: Sending frame %d\n", frame);
-        
-        if (rand() % 10 < 3) {
-            printf("Sender: Frame %d lost! Resending...\n\n", frame);
+    srand(time(NULL));  // Seed randomness once
+    noframes = rand() % 10 + 1;  // 1–10 frames
+    printf("\nNumber of frames to send: %d", noframes);
+
+    while (noframes > 0) {
+        printf("\nSending frame %d", i);
+
+        x = rand() % 10;
+        if (x % 2 == 0) {  // Simulate lost ACK
+            printf("\nNo ACK received. Waiting 1 second...\n");
             sleep(1);
-            continue;
+            printf("Resending frame %d", i);
+            x = rand() % 10;
         }
-        
-        receiver(frame); 
-        timeout = rand() % 10; 
-        printf("Sender: Waiting for acknowledgment...\n");
-        sleep(1);
-        
-        if (timeout < 2) { 
-            printf("Sender: Timeout occurred! Resending frame %d\n\n", frame);
-            continue;
-        }
-        
-        printf("Receiver: Enter 'y' to acknowledge frame %d: ", frame);
-        scanf(" %c", &ack);
-        
-        if (ack == 'y' || ack == 'Y') {
-            printf("Sender: Acknowledgment received for frame %d\n\n", frame);
-            frame++; 
-        } else {
-            printf("Sender: Acknowledgment not received. Resending frame %d\n\n", frame);
-        }
-    }
-}
 
-void receiver(int frame) {
-    printf("Receiver: Frame %d received successfully.\n", frame);
+        printf("\nACK received for frame %d", j);
+        noframes--;
+        i++;
+        j++;
+    }
+
+    printf("\nEnd of Stop-and-Wait protocol.\n");
+    return 0;
 }
